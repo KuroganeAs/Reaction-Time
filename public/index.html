@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #0f1419;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #2a2a3e;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: white;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        #game-area {
+            width: 100%;
+            height: 400px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            user-select: none;
+        }
+
+        .waiting {
+            background: #3498db;
+            color: white;
+        }
+
+        .ready {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .click {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .too-soon {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .stats {
+            background: #1a1f2e;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a3e;
+        }
+
+        .stats h3 {
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 1px solid #2a2a3e;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .attempts-list {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .attempt-badge {
+            background: linear-gradient(135deg, #3a3a4a 0%, #2a2a3e 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        }
+
+        button {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #3a3a4a 0%, #2a2a3e 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #4a4a5a 0%, #3a3a4e 100%);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .leaderboard {
+            background: #1a1f2e;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: left;
+            border: 1px solid #2a2a3e;
+        }
+
+        .leaderboard h2 {
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .leaderboard-item {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 1px solid #2a2a3e;
+        }
+
+        .rank {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            width: 40px;
+        }
+
+        .username {
+            flex: 1;
+            font-weight: bold;
+            color: white;
+        }
+
+        .score {
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #0f1419;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #2a2a3e;
+        }
+
+        .modal-content h2 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #3a3a4a;
+            border-radius: 10px;
+            font-size: 1em;
+            margin: 15px 0;
+            background: #1a1f2e;
+            color: white;
+        }
+
+        input::placeholder {
+            color: #6a6a7a;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4a4a5a;
+        }
+
+        .info-box {
+            background: #1a2332;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3a3a4a;
+            color: white;
+        }
+
+        .info-box strong {
+            color: white;
+        }
+
+        .leaderboard-list p {
+            color: #6a6a7a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reaction Time Test</h1>
+        <p class="subtitle">Test your reflexes - Click when green!</p>
+
+        <div class="info-box">
+            <strong>How to play:</strong> Click START, wait for the box to turn GREEN, then click as fast as you can! Complete 5 attempts to see your average.
+        </div>
+
+        <div id="game-area" class="waiting">
+            Click START to begin
+        </div>
+
+        <div id="stats" class="stats" style="display: none;">
+            <h3>Your Results</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Average Time</div>
+                    <div class="stat-value" id="average-time">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Best Time</div>
+                    <div class="stat-value" id="best-time">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Attempts</div>
+                    <div class="stat-value" id="attempt-count">0/5</div>
+                </div>
+            </div>
+            <div class="attempts-list" id="attempts-list"></div>
+        </div>
+
+        <div>
+            <button id="reset-btn" onclick="resetGame()" style="display: none;">RESET</button>
+            <button id="save-btn" onclick="showSaveModal()" style="display: none;">SAVE SCORE</button>
+        </div>
+
+        <div class="leaderboard">
+            <h2>Top 10 Leaderboard</h2>
+            <div id="leaderboard-list">
+                <p style="text-align: center; color: #6a6a7a;">No scores yet. Be the first!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="save-modal" class="modal">
+        <div class="modal-content">
+            <h2>Save Your Score</h2>
+            <p>Enter your username to save to leaderboard</p>
+            <input type="text" id="username-input" placeholder="Enter your name" maxlength="20">
+            <button onclick="saveScore()">Save</button>
+            <button onclick="closeSaveModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let gameState = 'idle'; 
+        let startTime = 0;
+        let timeoutId = null;
+        let attempts = [];
+        const MAX_ATTEMPTS = 5;
+
+        const gameArea = document.getElementById('game-area');
+        const resetBtn = document.getElementById('reset-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const statsDiv = document.getElementById('stats');
+
+        function startGame() {
+            if (attempts.length >= MAX_ATTEMPTS) {
+                return;
+            }
+
+            gameState = 'waiting';
+            gameArea.className = 'waiting';
+            gameArea.textContent = 'Wait for GREEN...';
+
+            const delay = Math.random() * 4000 + 2000;
+
+            timeoutId = setTimeout(() => {
+                gameState = 'ready';
+                gameArea.className = 'click';
+                gameArea.textContent = 'CLICK NOW!';
+                startTime = Date.now();
+            }, delay);
+        }
+
+        gameArea.addEventListener('click', () => {
+            if (gameState === 'idle') {
+                startGame();
+            } else if (gameState === 'waiting') {
+                clearTimeout(timeoutId);
+                gameState = 'idle';
+                gameArea.className = 'too-soon';
+                gameArea.textContent = 'Too soon! Wait for GREEN\nClick to try again';
+            } else if (gameState === 'ready') {
+                const reactionTime = Date.now() - startTime;
+                attempts.push(reactionTime);
+                
+                gameState = 'idle';
+                gameArea.className = 'waiting';
+                gameArea.textContent = `${reactionTime}ms\n${attempts.length >= MAX_ATTEMPTS ? 'Complete!' : 'Click to continue'}`;
+                
+                updateStats();
+                
+                if (attempts.length >= MAX_ATTEMPTS) {
+                    resetBtn.style.display = 'inline-block';
+                    saveBtn.style.display = 'inline-block';
+                }
+            }
+        });
+
+        function updateStats() {
+            if (attempts.length === 0) return;
+
+            const average = Math.round(attempts.reduce((a, b) => a + b) / attempts.length);
+            const best = Math.min(...attempts);
+
+            document.getElementById('average-time').textContent = average + ' ms';
+            document.getElementById('best-time').textContent = best + ' ms';
+            document.getElementById('attempt-count').textContent = `${attempts.length}/${MAX_ATTEMPTS}`;
+
+            const attemptsList = document.getElementById('attempts-list');
+            attemptsList.innerHTML = attempts.map((time, index) => 
+                `<div class="attempt-badge">Try ${index + 1}: ${time}ms</div>`
+            ).join('');
+
+            statsDiv.style.display = 'block';
+        }
+
+        function resetGame() {
+            attempts = [];
+            gameState = 'idle';
+            gameArea.className = 'waiting';
+            gameArea.textContent = 'Click START to begin';
+            startBtn.disabled = false;
+            startBtn.style.display = 'inline-block';
+            resetBtn.style.display = 'none';
+            saveBtn.style.display = 'none';
+            statsDiv.style.display = 'none';
+        }
+
+        function showSaveModal() {
+            document.getElementById('save-modal').style.display = 'flex';
+            document.getElementById('username-input').focus();
+        }
+
+        function closeSaveModal() {
+            document.getElementById('save-modal').style.display = 'none';
+            document.getElementById('username-input').value = '';
+        }
+
+        async function saveScore() {
+            const username = document.getElementById('username-input').value.trim();
+            
+            if (!username) {
+                alert('Please enter your name!');
+                return;
+            }
+
+            const average = Math.round(attempts.reduce((a, b) => a + b) / attempts.length);
+
+            try {
+                const response = await fetch('/api/score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: username,
+                        averageTime: average,
+                        attempts: attempts
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Score saved! Your rank: #${result.rank}`);
+                    closeSaveModal();
+                    loadLeaderboard();
+                }
+            } catch (error) {
+                alert('Error saving score: ' + error.message);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch('/api/leaderboard');
+                const leaderboard = await response.json();
+                
+                const leaderboardDiv = document.getElementById('leaderboard-list');
+                
+                if (leaderboard.length === 0) {
+                    leaderboardDiv.innerHTML = '<p style="text-align: center; color: #6a6a7a;">No scores yet. Be the first!</p>';
+                    return;
+                }
+
+                leaderboardDiv.innerHTML = leaderboard.map((score, index) => `
+                    <div class="leaderboard-item">
+                        <div class="rank">#${index + 1}</div>
+                        <div class="username">${score.username}</div>
+                        <div class="score">${score.averageTime}ms</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+            }
+        }
+
+        loadLeaderboard();
+
+        setInterval(loadLeaderboard, 30000);
+    </script>
+</body>
+</html>

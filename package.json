@@ -1,0 +1,19 @@
+{
+  "name": "reaction-time-test",
+  "version": "1.0.0",
+  "description": "Reaction Time Test Game - Cross-platform Demo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["nodejs", "express", "game", "reaction-time", "docker"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
